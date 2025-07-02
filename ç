@@ -1,0 +1,68 @@
+const std = @import("std");
+const Allocator = std.mem.Allocator;
+
+pub fn main() !void {
+    const allocator = std.heap.page_allocator;
+    var graph = Graph(u8, f16, 4).init(allocator);
+
+    try graph.newNode(13);
+    try graph.newNode(10);
+    try graph.newNode(11);
+    try graph.newNode(3);
+
+    try graph.newNode(5);
+
+}
+
+
+pub fn Graph(comptime T: type, comptime W: type, comptime capacity: u32) type {
+
+    return struct {
+        // Asi es como se deberia hacer.
+        // Pero vamos a llamar nosotros directamente
+        // a @This()
+        // Mentira.
+        const Self = @This();
+        allocator: Allocator,
+        id_count: usize,
+        nodes: [capacity]*Node,
+        edges: [capacity]*Edge,
+
+        const Node = struct {
+            id: usize,
+            value: T,
+        };
+
+        const Edge = struct {
+            from: *Node,
+            to: *Node,
+            weight: W,
+        };
+
+        pub fn init(allocator: Allocator) Self {
+            return Self {
+                .allocator = allocator,
+                .nodes = undefined,
+                .edges = undefined,
+                .id_count = 0,
+            };
+        }
+
+        pub fn newNode(self: *Self, value: T) !void { // No se queja :)
+            const nodes = try self.allocator.alloc(Node, 1);
+            var node = nodes[0];
+
+            node.id = self.id_count;
+            node.value = value;
+
+            self.nodes[self.id_count] = &node;
+
+            std.debug.print("Node {any}\n ", .{self.nodes[0..self.id_count]});
+
+            self.id_count += 1;
+        }
+
+    };
+}
+
+

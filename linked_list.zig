@@ -32,7 +32,7 @@ fn LinkedList(comptime T: type) type {
             data: T,
             next: ?*Node = null, // si quelcom pot ser null, s'ha d'explicitar amb ? 
         };
-
+        
         first: ?*Node = null,
         len: usize = 0,
         
