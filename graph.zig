@@ -216,11 +216,8 @@ pub const GraphError = error {
 pub fn Graph(comptime T: type, comptime W: type, comptime capacity: u32) type {
 
     return struct {
-        // Asi es como se deberia hacer.
-        // Pero vamos a llamar nosotros directamente
-        // a @This()
-        // Mentira.
         const Self = @This();
+
         allocator: Allocator,
         node_count: usize,
         edge_count: usize,
@@ -259,12 +256,12 @@ pub fn Graph(comptime T: type, comptime W: type, comptime capacity: u32) type {
             }
         }
 
-        pub fn newNode(self: *Self, value: T) error{IndexOutOfBounds, OutOfMemory}!void { // No se queja :)
+        pub fn newNode(self: *Self, value: T) error{IndexOutOfBounds, OutOfMemory}!void {
             
             if (self.nodes.len <= self.node_count) return error.IndexOutOfBounds;
             
             // create és la funció que voliem, no alloc
-            const node_ptr = try self.allocator.create(Node);
+            const node_ptr: *Node = try self.allocator.create(Node);
             
             node_ptr.* = .{
                 .id = self.node_count,
@@ -272,7 +269,6 @@ pub fn Graph(comptime T: type, comptime W: type, comptime capacity: u32) type {
             };
 
             self.nodes[self.node_count] = node_ptr;
-
             self.node_count += 1;
         }
 
@@ -298,7 +294,7 @@ pub fn Graph(comptime T: type, comptime W: type, comptime capacity: u32) type {
             const node_from = try self.getNodeByValue(value_from);
             const node_to = try self.getNodeByValue(value_to);
 
-            const edge_ptr = try self.allocator.create(Edge);
+            const edge_ptr: *Egde = try self.allocator.create(Edge);
             
             edge_ptr.from = self.nodes[node_from];
             edge_ptr.to = self.nodes[node_to];
@@ -361,7 +357,7 @@ pub fn Graph(comptime T: type, comptime W: type, comptime capacity: u32) type {
                     *Edge,
                     self.edges[edge_index.. self.edge_count-1],
                     self.edges[edge_index + 1.. self.edge_count],
-                    );
+                );
             }
 
             self.edge_count -= 1;
